@@ -1,0 +1,20 @@
+{
+  "name": "action-provision-github-runner",
+  "version": "1.0.0",
+  "description": "This repository provides a github action which can provision a self-hosted github runner via AWS ECS/Fargate",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/trussworks/action-provision-github-runner.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/trussworks/action-provision-github-runner/issues"
+  },
+  "homepage": "https://github.com/trussworks/action-provision-github-runner#readme"
+}

@@ -1,0 +1,34 @@
+name: 'Provision GitHub Runners'
+description: 'Scale up ECS Service count and deploy a task definition'
+inputs:
+  AWS_REGION:
+    description: 'Your AWS region'
+    required: true
+    default: 'us-east-1'
+  ECR_REPOSITORY:
+    description: 'the name of the ECR repository to target'
+    required: true
+  IMAGE_TAG:
+    description: 'the unique tag of a specific image to pull from your ECR repository'
+    required: true
+    default: 'latest'
+  CONTAINER_NAME:
+    description: 'the container name'
+    required: true
+  TASK_DEFINITION:
+    description: 'the task definition family name'
+    required: true
+  SERVICE:
+    description: 'the name of the ECS service to deploy to'
+    required: true
+  CLUSTER: 
+    description: 'the name of the ECS cluster the service belongs to'
+    required: true
+  DESIRED_COUNT:
+    description: 'the number of runners you need'
+    required: true
+    default: 1
+runs:
+  using: 'node12'
+  main: 'index.js'
+  post: 'cleanup.js'
