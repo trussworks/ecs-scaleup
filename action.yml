@@ -27,7 +27,7 @@ inputs:
   DESIRED_COUNT:
     description: 'the number of runners you need'
     required: true
-    default: 1
+    default: '1'
 runs:
   using: 'node12'
   main: 'index.js'
