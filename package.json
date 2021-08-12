@@ -4,7 +4,7 @@
   "description": "This repository provides a github action which can provision a self-hosted github runner via AWS ECS/Fargate",
   "main": "index.js",
   "scripts": {
-    "lint": "eslint **.js",
+    "lint": "eslint src/main/**.js && eslint src/cleanup/**.js",
     "package": "ncc build src/main/index.js -o dist && ncc build src/cleanup/index.js -o dist/cleanup",
     "test": "npm run lint && jest --coverage --verbose"
   },
