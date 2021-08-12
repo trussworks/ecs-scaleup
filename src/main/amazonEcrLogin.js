@@ -5,6 +5,8 @@ const aws = require('aws-sdk');
 async function run() {
   const registryUriState = [];
   const skipLogout = core.getInput('skip-logout', { required: false });
+  const ecrRepository = core.getInput('ECR_REPOSITORY', { required: true });
+  const imageTag = core.getInput('IMAGE_TAG', { required: false })
 
   try {
     const registries = core.getInput('registries', { required: false });
@@ -35,7 +37,7 @@ async function run() {
 
       if (authTokenResponse.authorizationData.length == 1) {
         // output the registry URI if this action is doing a single registry login
-        core.setOutput('registry', registryUri);
+        core.setOutput('image', `${registryUri}/${ecrRepository}:${imageTag}`);
       }
 
       // Execute the docker login command

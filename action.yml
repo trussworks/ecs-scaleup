@@ -22,7 +22,7 @@ inputs:
     required: true
   IMAGE_TAG:
     description: 'the unique tag of a specific image to pull from your ECR repository'
-    required: true
+    required: false
     default: 'latest'
   CONTAINER_NAME:
     description: 'the container name'
