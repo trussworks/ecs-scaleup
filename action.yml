@@ -30,5 +30,5 @@ inputs:
     default: '1'
 runs:
   using: 'node12'
-  main: 'index.js'
-  post: 'cleanup.js'
+  main: 'dist/index.js'
+  post: 'dist/cleanup/index.js'

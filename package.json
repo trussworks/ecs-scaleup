@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "lint": "eslint **.js",
-    "package": "ncc build index.js -o dist && ncc build cleanup.js -o dist/cleanup",
+    "package": "ncc build src/main/index.js -o dist && ncc build src/cleanup/index.js -o dist/cleanup",
     "test": "npm run lint && jest --coverage --verbose"
   },
   "repository": {
