@@ -21,6 +21,7 @@
   "homepage": "https://github.com/trussworks/action-provision-github-runner#readme",
   "dependencies": {
     "@actions/core": "^1.4.0",
+    "@actions/exec": "^1.1.0",
     "aws-sdk": "^2.966.0"
   },
   "devDependencies": {
