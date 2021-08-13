@@ -10,7 +10,8 @@ async function run() {
       customUserAgent: 'amazon-ecs-deploy-task-definition-for-github-actions'
     });
     const taskDefResponse = await ecs.describeTaskDefinition({ taskDefinition }).promise();
-    await fs.writeFile('task-definition.json', JSON.stringify(taskDefResponse.taskDefinition))    
+    const filePath = path.join(process.env.GITHUB_WORKSPACE, `task-definition.json`)
+    await fs.writeFile(filePath, JSON.stringify(taskDefResponse.taskDefinition))    
   } catch (error) {
     core.setFailed(error.message);
   }
