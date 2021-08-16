@@ -5,9 +5,9 @@ const renderTaskDefinition = require('./renderTaskDefinition')
 
 async function run() {
   await configAwsCreds()
-  await amazonEcrLogin()
+  const imageUri = await amazonEcrLogin()
   const taskDef = await getTaskDefinition()
-  const newTaskDef = await renderTaskDefinition(taskDef)
+  const newTaskDef = await renderTaskDefinition(taskDef, imageUri)
   console.log(newTaskDef)
 }
 

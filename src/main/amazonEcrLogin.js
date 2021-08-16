@@ -37,7 +37,7 @@ async function run() {
 
       if (authTokenResponse.authorizationData.length == 1) {
         // output the registry URI if this action is doing a single registry login
-        core.setOutput('image', `${registryUri}/${ecrRepository}:${imageTag}`);
+        return `${registryUri}/${ecrRepository}:${imageTag}`
       }
 
       // Execute the docker login command

@@ -1,9 +1,8 @@
 const core = require('@actions/core');
 
-async function run(taskDefContents) {
+async function run(taskDefContents, imageURI) {
   try {
     const containerName = core.getInput('container-name', { required: true });
-    const imageURI = core.getInput('image', { required: true });
 
     // Insert the image URI
     if (!Array.isArray(taskDefContents.containerDefinitions)) {
