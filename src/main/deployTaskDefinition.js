@@ -249,7 +249,7 @@ async function run(newTaskDefinition) {
     // Get inputs
     const service = core.getInput('service', { required: false });
     const cluster = core.getInput('cluster', { required: false });
-    const waitForService = true // Forcing this to be required because if it isn't, the runners won't be up in time
+    const waitForService = 'true' // Forcing this to be required because if it isn't, the runners won't be up in time
     let waitForMinutes = parseInt(core.getInput('wait-for-minutes', { required: false })) || 30;
     if (waitForMinutes > MAX_WAIT_MINUTES) {
       waitForMinutes = MAX_WAIT_MINUTES;
