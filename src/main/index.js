@@ -8,6 +8,7 @@ async function run() {
   await amazonEcrLogin()
   const taskDef = await getTaskDefinition()
   const newTaskDef = await renderTaskDefinition(taskDef)
+  console.log(newTaskDef)
 }
 
 module.exports = run;
