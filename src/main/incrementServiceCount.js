@@ -10,7 +10,7 @@ async function run() {
     const ecs = new aws.ECS({
       customUserAgent: 'amazon-ecs-deploy-task-definition-for-github-actions'
     });
-    await ecs.describeTaskDefinition({ service, cluster, desiredCount }).promise();
+    await ecs.updateService({ service, cluster, desiredCount }).promise();
   } catch (error) {
     core.setFailed(error.message);
   }
