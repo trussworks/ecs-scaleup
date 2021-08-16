@@ -6,7 +6,8 @@ const renderTaskDefinition = require('./renderTaskDefinition')
 async function run() {
   await configAwsCreds()
   await amazonEcrLogin()
-  await getTaskDefinition()
+  const taskDef = await getTaskDefinition()
+  const newTaskDef = await renderTaskDefinition(taskDef)
 }
 
 module.exports = run;

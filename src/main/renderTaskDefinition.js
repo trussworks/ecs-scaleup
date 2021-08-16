@@ -1,31 +1,9 @@
 const core = require('@actions/core');
-const artifact = require('@actions/artifact');
-const path = require('path');
-const tmp = require('tmp');
-const fs = require('fs');
 
-async function run() {
+async function run(taskDefContents) {
   try {
-    // Get inputs
-    const artifactClient = artifact.create()
-    const artifactName = 'taskDefinition'
-    const filePath = '.'
-    const options = {
-      createArtifactFolder: false
-    }
-    await artifactClient.downloadArtifact(artifactName, filePath, options)
-    const taskDefinitionFile = core.getInput('task-definition', { required: true });
     const containerName = core.getInput('container-name', { required: true });
     const imageURI = core.getInput('image', { required: true });
-
-    // Parse the task definition
-    const taskDefPath = path.isAbsolute(taskDefinitionFile) ?
-      taskDefinitionFile :
-      path.join(process.env.GITHUB_WORKSPACE, taskDefinitionFile);
-    if (!fs.existsSync(taskDefPath)) {
-      throw new Error(`Task definition file does not exist: ${taskDefinitionFile}`);
-    }
-    const taskDefContents = require(taskDefPath);
 
     // Insert the image URI
     if (!Array.isArray(taskDefContents.containerDefinitions)) {
@@ -39,17 +17,8 @@ async function run() {
     }
     containerDef.image = imageURI;
 
-    // Write out a new task definition file
-    var updatedTaskDefFile = tmp.fileSync({
-      tmpdir: process.env.RUNNER_TEMP,
-      prefix: 'task-definition-',
-      postfix: '.json',
-      keep: true,
-      discardDescriptor: true
-    });
     const newTaskDefContents = JSON.stringify(taskDefContents, null, 2);
-    fs.writeFileSync(updatedTaskDefFile.name, newTaskDefContents);
-    core.setOutput('task-definition', updatedTaskDefFile.name);
+    return newTaskDefContents
   }
   catch (error) {
     core.setFailed(error.message);
