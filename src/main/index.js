@@ -7,7 +7,6 @@ async function run() {
   await configAwsCreds()
   await amazonEcrLogin()
   await getTaskDefinition()
-  await renderTaskDefinition()
 }
 
 module.exports = run;
