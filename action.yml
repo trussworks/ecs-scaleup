@@ -24,7 +24,7 @@ inputs:
     description: 'the unique tag of a specific image to pull from your ECR repository'
     required: false
     default: 'latest'
-  container_name:
+  container-name:
     description: 'the container name'
     required: true
   task-definition:
