@@ -27,16 +27,16 @@ inputs:
   CONTAINER_NAME:
     description: 'the container name'
     required: true
-  TASK_DEFINITION:
+  task-definition:
     description: 'the task definition family name'
     required: true
-  SERVICE:
+  service:
     description: 'the name of the ECS service to deploy to'
     required: true
-  CLUSTER: 
+  cluster: 
     description: 'the name of the ECS cluster the service belongs to'
     required: true
-  DESIRED_COUNT:
+  desired-count:
     description: 'the number of runners you need'
     required: true
     default: '1'

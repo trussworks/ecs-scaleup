@@ -2,7 +2,7 @@ const core = require('@actions/core');
 const aws = require('aws-sdk');
 
 async function run() {
-  const taskDefinition = core.getInput('TASK_DEFINITION', { required: true });
+  const taskDefinition = core.getInput('task-definition', { required: true });
   try {
     // Connect to ecs and pull the task definition
     const ecs = new aws.ECS({
