@@ -73,20 +73,33 @@ This action was developed as a way to dynamically scale up an ECS Service to a
 desired number of instances, where those instances represent GitHub Self-Hosted Runners.
 
 ```yaml
-- name: ecs-scaleup
-  uses: trussworks/ecs-scaleup@f9f61a55ff0565859d3fbfeabdfd603c9acf3387
-  with:
-    aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-    aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-    aws-region: us-east-1
-    ecr_repository: github-runner
-    image_tag: latest
-    container-name: dev-mac-fc-infra
-    task-definition: github-runner-dev
-    service: github-actions-runner
-    cluster: github-runner
-    desired-count: 3
+ecs-scaleup:
+  name: Scale up ECS service
+  runs-on: ubuntu-latest
+  steps:
+    - name: ecs-scaleup
+      uses: trussworks/ecs-scaleup@f9f61a55ff0565859d3fbfeabdfd603c9acf3387
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: us-east-1
+        ecr_repository: github-runner
+        image_tag: latest
+        container-name: dev-mac-fc-infra
+        task-definition: github-runner-dev
+        service: github-actions-runner
+        cluster: github-runner
+        desired-count: 3
 ```
+
+**NOTE**: If using this action to stand up self-hosted runners,
+ any subsequent jobs should have:
+
+```yaml
+needs: ecs-scaleup
+```
+
+in its YAML configuration.
 
 ## See Also
 
