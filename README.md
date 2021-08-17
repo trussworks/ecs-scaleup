@@ -74,7 +74,7 @@ desired number of instances, where those instances represent GitHub Self-Hosted 
 
 ```yaml
 - name: ecs-scaleup
-  uses: trussworks/action-provision-github-runner@f9a837df0e6d249f759016d5e31bf6e8ec204188
+  uses: trussworks/ecs-scaleup@f9f61a55ff0565859d3fbfeabdfd603c9acf3387
   with:
     aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
     aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
