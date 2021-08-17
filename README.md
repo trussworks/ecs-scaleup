@@ -18,6 +18,55 @@ which are used with small modifications.
 `desired count` attribute to the desired number
 6. Deploy the task definition from step 4. Uses existing action: [aws-actions/amazon-ecs-deploy-task-definition](https://github.com/aws-actions/amazon-ecs-deploy-task-definition)
 
+## Modifications made to existing AWS actions
+
+Any instances of `core.setOutput` have been modified to return
+ the item instead so that it can be passed to the next function.
+
+All instances of
+
+```js
+if (require.main === module) {
+    run();
+}
+```
+
+have been removed from files other than `index.js`.
+
+### aws-actions/configure-aws-credentials
+
+Path: `src/main/configAwsCreds.js`
+
+No other changes
+
+### aws-actions/amazon-ecr-login
+
+Path: `src/main/amazonEcrLogin.js`
+
+Line 41 is changed to output the whole image path rather than only the RegistryURI.
+ This image is accepted as an argument to a subsequent step.
+
+### aws-actions/amazon-ecs-render-task-definition
+
+Path: `src/main/renderTaskDefinition.js`
+
+The run() function is edited to accept the task definition retrieved from
+ the `getTaskDefinition.js` module and the image path outputted by `amazonEcrLogin.js`.
+Removed usage of the filesystem.
+
+### aws-actions/amazon-ecs-deploy-task-definition
+
+Path: `src/main/deployTaskDefinition.js`
+
+The run() function is edited to accept the new task definition from
+ the previous step as an argument. Removed uage of the filesystem.
+
+### Cleanup functions
+
+Path: `src/cleanup/configAwsCreds.js` and `src/cleanup/amazonEcrLogin.js`
+
+No changes
+
 ## Use Case and Usage
 
 This action was developed as a way to dynamically scale up an ECS Service to a
