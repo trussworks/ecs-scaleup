@@ -18,26 +18,26 @@ inputs:
     required: true
     default: 'us-east-1'
   ecr_repository:
-    description: 'the name of the ECR repository to target'
+    description: 'The ECR repository housing the image you want to use.'
     required: true
   image_tag:
-    description: 'the unique tag of a specific image to pull from your ECR repository'
+    description: 'The unique tag of a specific image to pull from your ECR repository.'
     required: false
     default: 'latest'
   container-name:
-    description: 'the container name'
+    description: 'The container name listed in the task definition you will deploy.'
     required: true
   task-definition:
-    description: 'the task definition family name'
+    description: 'The task definition family name.'
     required: true
   service:
-    description: 'the name of the ECS service to deploy to'
+    description: 'The name of the ECS service.'
     required: true
-  cluster: 
-    description: 'the name of the ECS cluster the service belongs to'
+  cluster:
+    description: 'The name of the ECS cluster the service belongs to.'
     required: true
   desired-count:
-    description: 'the number of runners you need'
+    description: 'The number of ECS tasks you wish to deploy.'
     required: true
     default: '1'
 runs:

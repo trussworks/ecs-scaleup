@@ -98,8 +98,8 @@ async function assumeRole(params) {
     } catch(error) {
       throw new Error(`Web identity token file could not be read: ${error.message}`);
     }
-    
-  } 
+
+  }
 
   return assumeFunction(assumeRoleRequest)
     .promise()

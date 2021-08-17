@@ -36,6 +36,7 @@ async function run() {
       const registryUri = proxyEndpoint.replace(/^https?:\/\//,'');
 
       if (authTokenResponse.authorizationData.length == 1) {
+        // !Edited by Trussworks to output the full image path
         // output the registry URI if this action is doing a single registry login
         return `${registryUri}/${ecrRepository}:${imageTag}`
       }
