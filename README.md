@@ -5,6 +5,10 @@ scale up an ECS service's desired count.
 
 This action wraps several AWS interactions into one, including existing AWS actions,
 which are used with small modifications.
+Since GitHub Actions currently does not allow
+ composite actions to call other actions,
+  we chose to integrate the JavaScript code
+   from existing aws-actions into this repository.
 
 ## What it does
 
