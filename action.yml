@@ -1,4 +1,4 @@
-name: 'Provision GitHub Runners'
+name: 'ECS Scale Up'
 description: 'Scale up ECS Service count and deploy a task definition'
 inputs:
   aws-access-key-id:
@@ -17,10 +17,10 @@ inputs:
     description: 'Your AWS region'
     required: true
     default: 'us-east-1'
-  ecr_repository:
+  ecr-repository:
     description: 'The ECR repository housing the image you want to use.'
     required: true
-  image_tag:
+  image-tag:
     description: 'The unique tag of a specific image to pull from your ECR repository.'
     required: false
     default: 'latest'

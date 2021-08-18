@@ -83,8 +83,8 @@ ecs-scaleup:
         aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
         aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
         aws-region: us-east-1
-        ecr_repository: github-runner
-        image_tag: latest
+        ecr-repository: github-runner
+        image-tag: latest
         container-name: dev-mac-fc-infra
         task-definition: github-runner-dev
         service: github-actions-runner

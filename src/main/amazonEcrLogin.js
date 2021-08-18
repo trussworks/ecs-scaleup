@@ -29,8 +29,8 @@ const aws = require('aws-sdk');
 async function run() {
   const registryUriState = [];
   const skipLogout = core.getInput('skip-logout', { required: false });
-  const ecrRepository = core.getInput('ECR_REPOSITORY', { required: true });
-  const imageTag = core.getInput('IMAGE_TAG', { required: false })
+  const ecrRepository = core.getInput('ecr-repository', { required: true });
+  const imageTag = core.getInput('image-tag', { required: false })
 
   try {
     const registries = core.getInput('registries', { required: false });
