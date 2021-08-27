@@ -47,7 +47,7 @@ No other changes
 
 Path: `src/main/amazonEcrLogin.js`
 
-Line 41 is changed to output the whole image path rather than only the RegistryURI.
+Line 65 is changed to output the whole image path rather than only the RegistryURI.
  This image is accepted as an argument to a subsequent step.
 
 ### aws-actions/amazon-ecs-render-task-definition

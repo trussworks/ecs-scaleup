@@ -59,6 +59,9 @@ const EXPECTED_DEFAULT_WAIT_TIME = 30;
 const EXPECTED_CODE_DEPLOY_DEPLOYMENT_READY_WAIT_TIME = 60;
 const EXPECTED_CODE_DEPLOY_TERMINATION_WAIT_TIME = 30;
 
+// trussWorks additions
+const FAKE_TASKDEF = "{}"
+
 describe('Deploy to ECS', () => {
 
     beforeEach(() => {
@@ -66,7 +69,7 @@ describe('Deploy to ECS', () => {
 
         core.getInput = jest
             .fn()
-            .mockReturnValueOnce('task-definition.json') // task-definition
+            .mockReturnValueOnce(FAKE_TASKDEF) // task-definition
             .mockReturnValueOnce('service-456')         // service
             .mockReturnValueOnce('cluster-789');        // cluster
 
@@ -89,9 +92,9 @@ describe('Deploy to ECS', () => {
                         ContainerPort: 80`;
             }
 
-            if (pathInput == path.join(process.env.GITHUB_WORKSPACE, 'task-definition.json')) {
-                return JSON.stringify({ family: 'task-def-family' });
-            }
+            // if (pathInput == path.join(process.env.GITHUB_WORKSPACE, 'task-definition.json')) {
+            //     return JSON.stringify({ family: 'task-def-family' });
+            // }
 
             throw new Error(`Unknown path ${pathInput}`);
         });
@@ -170,7 +173,7 @@ describe('Deploy to ECS', () => {
     });
 
      test('registers the task definition contents and updates the service', async () => {
-        await run();
+        await run(FAKE_TASKDEF);
         expect(core.setFailed).toHaveBeenCalledTimes(0);
         expect(mockEcsRegisterTaskDef).toHaveBeenNthCalledWith(1, { family: 'task-def-family'});
         expect(core.setOutput).toHaveBeenNthCalledWith(1, 'task-definition-arn', 'task:def:arn');
