@@ -35,8 +35,8 @@ function mockGetInput(requestResponse) {
 }
 
 const DEFAULT_INPUTS = {
-    'ecr-repository': undefined,
-    'image-tag': undefined
+    'ecr-repository': "fake-repository",
+    'image-tag': "fake-image-tag"
 };
 
 const mockEcrGetAuthToken = jest.fn();
@@ -78,155 +78,11 @@ describe('Login to ECR', () => {
     test('gets auth token from ECR', async () => {
         await run();
         expect(mockEcrGetAuthToken).toHaveBeenCalled();
-        
     });
 
-    // test('gets auth token from ECR and logins the Docker client for the default registry', async () => {
-    //     await run();
-    //     expect(mockEcrGetAuthToken).toHaveBeenCalled();
-    //     expect(core.setOutput).toHaveBeenNthCalledWith(1, 'registry', '123456789012.dkr.ecr.aws-region-1.amazonaws.com');
-    //     expect(exec.exec).toHaveBeenNthCalledWith(1,
-    //         'docker login',
-    //         ['-u', 'hello', '-p', 'world', 'https://123456789012.dkr.ecr.aws-region-1.amazonaws.com'],
-    //         expect.anything());
-    //     expect(core.saveState).toHaveBeenCalledTimes(1);
-    //     expect(core.saveState).toHaveBeenCalledWith('registries', '123456789012.dkr.ecr.aws-region-1.amazonaws.com');
-    // });
-
-    test('gets auth token from ECR and logins the Docker client for each provided registry', async () => {
-        const mockInputs = {'registries' : '123456789012,111111111111'};
-        core.getInput = jest
-            .fn()
-            .mockImplementation(mockGetInput(mockInputs));
-        mockEcrGetAuthToken.mockImplementation(() => {
-            return {
-                promise() {
-                    return Promise.resolve({
-                        authorizationData: [
-                            {
-                                authorizationToken: Buffer.from('hello:world').toString('base64'),
-                                proxyEndpoint: 'https://123456789012.dkr.ecr.aws-region-1.amazonaws.com'
-                            },
-                            {
-                                authorizationToken: Buffer.from('foo:bar').toString('base64'),
-                                proxyEndpoint: 'https://111111111111.dkr.ecr.aws-region-1.amazonaws.com'
-                            }
-                       ]
-                    });
-                }
-            };
-        });
-
-        await run();
-
-        expect(mockEcrGetAuthToken).toHaveBeenCalledWith({
-            registryIds: ['123456789012','111111111111']
-        });
-        expect(core.setOutput).toHaveBeenCalledTimes(0);
-        expect(exec.exec).toHaveBeenCalledTimes(2);
-        expect(exec.exec).toHaveBeenNthCalledWith(1,
-            'docker login',
-            ['-u', 'hello', '-p', 'world', 'https://123456789012.dkr.ecr.aws-region-1.amazonaws.com'],
-            expect.anything());
-        expect(exec.exec).toHaveBeenNthCalledWith(2,
-            'docker login',
-            ['-u', 'foo', '-p', 'bar', 'https://111111111111.dkr.ecr.aws-region-1.amazonaws.com'],
-            expect.anything());
-        expect(core.saveState).toHaveBeenCalledTimes(1);
-        expect(core.saveState).toHaveBeenCalledWith('registries', '123456789012.dkr.ecr.aws-region-1.amazonaws.com,111111111111.dkr.ecr.aws-region-1.amazonaws.com');
-    });
-
-    test('outputs the registry ID if a single registry is provided in the input', async () => {
-        const mockInputs = {'registries' : '111111111111'};
-        core.getInput = jest
-            .fn()
-            .mockImplementation(mockGetInput(mockInputs));
-        mockEcrGetAuthToken.mockImplementation(() => {
-            return {
-                promise() {
-                    return Promise.resolve({
-                        authorizationData: [
-                            {
-                                authorizationToken: Buffer.from('foo:bar').toString('base64'),
-                                proxyEndpoint: 'https://111111111111.dkr.ecr.aws-region-1.amazonaws.com'
-                            }
-                       ]
-                    });
-                }
-            };
-        });
-
-        await run();
-
-        expect(mockEcrGetAuthToken).toHaveBeenCalledWith({
-            registryIds: ['111111111111']
-        });
-        expect(core.setOutput).toHaveBeenCalledTimes(1);
-        expect(core.setOutput).toHaveBeenNthCalledWith(1, 'registry', '111111111111.dkr.ecr.aws-region-1.amazonaws.com');
-        expect(exec.exec).toHaveBeenCalledTimes(1);
-        expect(exec.exec).toHaveBeenNthCalledWith(1,
-            'docker login',
-            ['-u', 'foo', '-p', 'bar', 'https://111111111111.dkr.ecr.aws-region-1.amazonaws.com'],
-            expect.anything());
-        expect(core.saveState).toHaveBeenCalledTimes(1);
-        expect(core.saveState).toHaveBeenCalledWith('registries', '111111111111.dkr.ecr.aws-region-1.amazonaws.com');
-    });
-
-    test('error is caught by core.setFailed for failed docker login', async () => {
-        exec.exec.mockReturnValue(1);
-
-        await run();
-
-        expect(core.setFailed).toBeCalled();
-        expect(core.setOutput).toHaveBeenCalledWith('registry', '123456789012.dkr.ecr.aws-region-1.amazonaws.com');
-        expect(core.saveState).toHaveBeenCalledTimes(0);
-    });
-
-    test('logged-in registries are saved as state even if the action fails', async () => {
-        exec.exec.mockReturnValue(1).mockReturnValueOnce(0);
-
-        const mockInputs = {'registries' : '123456789012,111111111111'};
-        core.getInput = jest
-            .fn()
-            .mockImplementation(mockGetInput(mockInputs));
-        mockEcrGetAuthToken.mockImplementation(() => {
-            return {
-                promise() {
-                    return Promise.resolve({
-                        authorizationData: [
-                            {
-                                authorizationToken: Buffer.from('hello:world').toString('base64'),
-                                proxyEndpoint: 'https://123456789012.dkr.ecr.aws-region-1.amazonaws.com'
-                            },
-                            {
-                                authorizationToken: Buffer.from('foo:bar').toString('base64'),
-                                proxyEndpoint: 'https://111111111111.dkr.ecr.aws-region-1.amazonaws.com'
-                            }
-                       ]
-                    });
-                }
-            };
-        });
-
-        await run();
-
-        expect(mockEcrGetAuthToken).toHaveBeenCalledWith({
-            registryIds: ['123456789012','111111111111']
-        });
-        expect(core.setOutput).toHaveBeenCalledTimes(0);
-        expect(exec.exec).toHaveBeenCalledTimes(2);
-        expect(exec.exec).toHaveBeenNthCalledWith(1,
-            'docker login',
-            ['-u', 'hello', '-p', 'world', 'https://123456789012.dkr.ecr.aws-region-1.amazonaws.com'],
-            expect.anything());
-        expect(exec.exec).toHaveBeenNthCalledWith(2,
-            'docker login',
-            ['-u', 'foo', '-p', 'bar', 'https://111111111111.dkr.ecr.aws-region-1.amazonaws.com'],
-            expect.anything());
-
-        expect(core.setFailed).toBeCalled();
-        expect(core.saveState).toHaveBeenCalledTimes(1);
-        expect(core.saveState).toHaveBeenCalledWith('registries', '123456789012.dkr.ecr.aws-region-1.amazonaws.com');
+    test('returns the full registry URL', async () => {
+        const result = await run();
+        expect(result).toBe("123456789012.dkr.ecr.aws-region-1.amazonaws.com/fake-repository:fake-image-tag")
     });
 
     test('error is caught by core.setFailed for ECR call', async () => {
@@ -238,56 +94,6 @@ describe('Login to ECR', () => {
 
         expect(core.setFailed).toBeCalled();
         expect(core.setOutput).toHaveBeenCalledTimes(0);
-        expect(core.saveState).toHaveBeenCalledTimes(0);
-    });
-
-    test('skips logout when specified and logging into default registry', async () => {
-        const mockInputs = {'skip-logout' : true};
-        core.getInput = jest
-            .fn()
-            .mockImplementation(mockGetInput(mockInputs));
-
-        await run();
-        expect(mockEcrGetAuthToken).toHaveBeenCalled();
-        expect(core.setOutput).toHaveBeenNthCalledWith(1, 'registry', '123456789012.dkr.ecr.aws-region-1.amazonaws.com');
-        expect(exec.exec).toHaveBeenNthCalledWith(1,
-            'docker login',
-            ['-u', 'hello', '-p', 'world', 'https://123456789012.dkr.ecr.aws-region-1.amazonaws.com'],
-            expect.anything());
-        expect(core.saveState).toHaveBeenCalledTimes(0);
-    });
-
-    test('skips logout when specified and logging into multiple registries', async () => {
-        const mockInputs = {'registries' : '123456789012,111111111111', 'skip-logout' : true};
-        core.getInput = jest
-            .fn()
-            .mockImplementation(mockGetInput(mockInputs));
-        mockEcrGetAuthToken.mockImplementation(() => {
-            return {
-                promise() {
-                    return Promise.resolve({
-                        authorizationData: [
-                            {
-                                authorizationToken: Buffer.from('hello:world').toString('base64'),
-                                proxyEndpoint: 'https://123456789012.dkr.ecr.aws-region-1.amazonaws.com'
-                            },
-                            {
-                                authorizationToken: Buffer.from('foo:bar').toString('base64'),
-                                proxyEndpoint: 'https://111111111111.dkr.ecr.aws-region-1.amazonaws.com'
-                            }
-                       ]
-                    });
-                }
-            };
-        });
-
-        await run();
-
-        expect(mockEcrGetAuthToken).toHaveBeenCalledWith({
-            registryIds: ['123456789012','111111111111']
-        });
-        expect(core.setOutput).toHaveBeenCalledTimes(0);
-        expect(exec.exec).toHaveBeenCalledTimes(2);
         expect(core.saveState).toHaveBeenCalledTimes(0);
     });
 });

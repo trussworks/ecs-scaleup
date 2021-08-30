@@ -30,25 +30,24 @@ async function run() {
   const imageTag = core.getInput('image-tag', { required: false })
 
   try {
+    if (!ecrRepository) {
+      core.setFailed('You must specify an ECR Repository')
+    }
+
     const ecr = new aws.ECR({
       customUserAgent: 'amazon-ecr-login-for-github-actions'
     });
+    
     const authTokenRequest = {};
     const authTokenResponse = await ecr.getAuthorizationToken(authTokenRequest).promise();
     if (!Array.isArray(authTokenResponse.authorizationData) || !authTokenResponse.authorizationData.length) {
       throw new Error('Could not retrieve an authorization token from Amazon ECR');
     }
 
-    for (const authData of authTokenResponse.authorizationData) {
-      const proxyEndpoint = authData.proxyEndpoint;
-      const registryUri = proxyEndpoint.replace(/^https?:\/\//,'');
+    const proxyEndpoint = authTokenResponse.authorizationData[0].proxyEndpoint;
+    const registryUri = proxyEndpoint.replace(/^https?:\/\//,'');
 
-      if (authTokenResponse.authorizationData.length == 1) {
-        // !Edited by Trussworks to output the full image path
-        // output the registry URI if this action is doing a single registry login
-        return `${registryUri}/${ecrRepository}:${imageTag}`
-      }
-    }
+    return `${registryUri}/${ecrRepository}:${imageTag}`
   }
   catch (error) {
     core.setFailed(error.message);
