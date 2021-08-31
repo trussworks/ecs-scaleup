@@ -59,7 +59,7 @@ describe('Increment Service Count', () => {
       .mockImplementation(mockGetInput(NO_INPUTS))
     await run();
 
-    expect(core.setFailed)
+    expect(core.setFailed).toHaveBeenCalled();
   })
 
   test('action fails when cluster is not set', async () => {
@@ -68,7 +68,7 @@ describe('Increment Service Count', () => {
       .mockImplementation(mockGetInput(SERVICE_ONLY))
     await run();
 
-    expect(core.setFailed)
+    expect(core.setFailed).toHaveBeenCalled();
   })
 
   test('action fails when service is not set', async () => {
@@ -77,7 +77,7 @@ describe('Increment Service Count', () => {
       .mockImplementation(mockGetInput(CLUSTER_ONLY))
     await run();
 
-    expect(core.setFailed)
+    expect(core.setFailed).toHaveBeenCalled();
   })
 
   test('when a valid cluster and service are provided, function runs successfully', async () => {

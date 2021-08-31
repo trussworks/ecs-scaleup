@@ -23,7 +23,7 @@ SOFTWARE.
  */
 const run = require('./amazonEcrLogin.js');
 const core = require('@actions/core');
-const exec = require('@actions/exec');
+// const exec = require('@actions/exec');
 
 jest.mock('@actions/core');
 jest.mock('@actions/exec');
@@ -71,8 +71,6 @@ describe('Login to ECR', () => {
                 }
             };
         });
-
-        exec.exec.mockReturnValue(0);
     });
 
     test('gets auth token from ECR', async () => {
