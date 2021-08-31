@@ -35,7 +35,8 @@ describe('Get the Task Definition', () => {
         promise () {
           return Promise.resolve({
             taskDefinition: {
-              family: FAKE_TASK_DEFINITION
+              family: FAKE_TASK_DEFINITION,
+              containerDefinitions: []
             }
           })
         }
@@ -64,6 +65,7 @@ describe('Get the Task Definition', () => {
       .fn()
       .mockImplementation(mockGetInput(INPUTS))
     const result = await run();
-    expect(result.family).toBe(FAKE_TASK_DEFINITION)
+    expect(result).toHaveProperty("family")
+    expect(result).toHaveProperty("containerDefinitions")
   })
 })
