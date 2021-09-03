@@ -14,13 +14,13 @@ Since GitHub Actions currently does not allow
 
 1. Configure AWS credentials. Uses existing action:
  [aws-actions/configure-aws-credentials](https://github.com/aws-actions/configure-aws-credentials)
-2. Log the user into ECR. Uses existing action:
+2. Generate a complete image URI for the ECR-hosted image to use. Uses logic from this action, but cuts down a lot of the workflow:
  [aws-actions/amazon-ecr-login](https://github.com/aws-actions/amazon-ecr-login)
 3. Use the AWS SDK for JavaScript to grab the desired task definition from AWS
-4. Populate the task definition with the desired image. Uses existing action: [aws-actions/amazon-ecs-render-task-definition](https://github.com/aws-actions/amazon-ecs-render-task-definition)
+4. Populate the task definition with the desired image. Starting with logic from the existing action: [aws-actions/amazon-ecs-render-task-definition](https://github.com/aws-actions/amazon-ecs-render-task-definition), this is now just a simple JavaScript function to plug the new image URI into the task definition fetched from step 3
 5. Uses the AWS SDK for JavaScript to increment the specified ECS Service's
 `desired count` attribute to the desired number
-6. Deploy the task definition from step 4. Uses existing action: [aws-actions/amazon-ecs-deploy-task-definition](https://github.com/aws-actions/amazon-ecs-deploy-task-definition)
+6. Deploy the task definition from step 4. Started from existing action: [aws-actions/amazon-ecs-deploy-task-definition](https://github.com/aws-actions/amazon-ecs-deploy-task-definition). Removed usage of CodeDeploy and refactored to use task definition from step 4 instead of a file path.
 
 ## Modifications made to existing AWS actions
 
@@ -47,29 +47,30 @@ No other changes
 
 Path: `src/main/amazonEcrLogin.js`
 
-Line 41 is changed to output the whole image path rather than only the RegistryURI.
+Since no docker commands are being executed in the container, most of the logic of this action was trimmed from the final ecs-scaleup.
+
+We have kept the authorization token request which depends on config aws creds successfully setting up the login, then retrieve the correct registryURI.
+
  This image is accepted as an argument to a subsequent step.
 
 ### aws-actions/amazon-ecs-render-task-definition
 
 Path: `src/main/renderTaskDefinition.js`
 
-The run() function is edited to accept the task definition retrieved from
- the `getTaskDefinition.js` module and the image path outputted by `amazonEcrLogin.js`.
-Removed usage of the filesystem.
+This function is now a simple JavaScript function to just take the task definition obtained from `getTaskDefinition.js` and plug in the new imageURI.
 
 ### aws-actions/amazon-ecs-deploy-task-definition
 
 Path: `src/main/deployTaskDefinition.js`
 
 The run() function is edited to accept the new task definition from
- the previous step as an argument. Removed uage of the filesystem.
+ the previous step as an argument. Removed uage of the filesystem and removed CodeDeploy provisioning to clean up code we won't need.
 
 ### Cleanup functions
 
-Path: `src/cleanup/configAwsCreds.js` and `src/cleanup/amazonEcrLogin.js`
+Path: `src/cleanup/configAwsCreds.js`
 
-No changes
+No changes. Removed the amazonEcrLogin cleanup function because there is no docker login, so nothing to clean up.
 
 ## Use Case and Usage
 

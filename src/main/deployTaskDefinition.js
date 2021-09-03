@@ -22,12 +22,9 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
  */
 
-const path = require('path');
 const core = require('@actions/core');
 const aws = require('aws-sdk');
 const yaml = require('yaml');
-const fs = require('fs');
-const crypto = require('crypto');
 
 const MAX_WAIT_MINUTES = 360;  // 6 hours
 const WAIT_DEFAULT_DELAY_SEC = 15;
@@ -70,27 +67,6 @@ async function updateEcsService(ecs, clusterName, service, taskDefArn, waitForSe
   } else {
     core.debug('Not waiting for the service to become stable');
   }
-}
-
-// Find value in a CodeDeploy AppSpec file with a case-insensitive key
-function findAppSpecValue(obj, keyName) {
-  return obj[findAppSpecKey(obj, keyName)];
-}
-
-function findAppSpecKey(obj, keyName) {
-  if (!obj) {
-    throw new Error(`AppSpec file must include property '${keyName}'`);
-  }
-
-  const keyToMatch = keyName.toLowerCase();
-
-  for (var key in obj) {
-    if (key.toLowerCase() == keyToMatch) {
-      return key;
-    }
-  }
-
-  throw new Error(`AppSpec file must include property '${keyName}'`);
 }
 
 function isEmptyValue(value) {
@@ -183,90 +159,9 @@ function validateProxyConfigurations(taskDef){
   return 'proxyConfiguration' in taskDef && taskDef.proxyConfiguration.type && taskDef.proxyConfiguration.type == 'APPMESH' && taskDef.proxyConfiguration.properties && taskDef.proxyConfiguration.properties.length > 0;
 }
 
-// Deploy to a service that uses the 'CODE_DEPLOY' deployment controller
-async function createCodeDeployDeployment(codedeploy, clusterName, service, taskDefArn, waitForService, waitForMinutes) {
-  core.debug('Updating AppSpec file with new task definition ARN');
-
-  let codeDeployAppSpecFile = core.getInput('codedeploy-appspec', { required : false });
-  codeDeployAppSpecFile = codeDeployAppSpecFile ? codeDeployAppSpecFile : 'appspec.yaml';
-
-  let codeDeployApp = core.getInput('codedeploy-application', { required: false });
-  codeDeployApp = codeDeployApp ? codeDeployApp : `AppECS-${clusterName}-${service}`;
-
-  let codeDeployGroup = core.getInput('codedeploy-deployment-group', { required: false });
-  codeDeployGroup = codeDeployGroup ? codeDeployGroup : `DgpECS-${clusterName}-${service}`;
-
-  let deploymentGroupDetails = await codedeploy.getDeploymentGroup({
-    applicationName: codeDeployApp,
-    deploymentGroupName: codeDeployGroup
-  }).promise();
-  deploymentGroupDetails = deploymentGroupDetails.deploymentGroupInfo;
-
-  // Insert the task def ARN into the appspec file
-  const appSpecPath = path.isAbsolute(codeDeployAppSpecFile) ?
-    codeDeployAppSpecFile :
-    path.join(process.env.GITHUB_WORKSPACE, codeDeployAppSpecFile);
-  const fileContents = fs.readFileSync(appSpecPath, 'utf8');
-  const appSpecContents = yaml.parse(fileContents);
-
-  for (var resource of findAppSpecValue(appSpecContents, 'resources')) {
-    for (var name in resource) {
-      const resourceContents = resource[name];
-      const properties = findAppSpecValue(resourceContents, 'properties');
-      const taskDefKey = findAppSpecKey(properties, 'taskDefinition');
-      properties[taskDefKey] = taskDefArn;
-    }
-  }
-
-  const appSpecString = JSON.stringify(appSpecContents);
-  const appSpecHash = crypto.createHash('sha256').update(appSpecString).digest('hex');
-
-  // Start the deployment with the updated appspec contents
-  core.debug('Starting CodeDeploy deployment');
-  const createDeployResponse = await codedeploy.createDeployment({
-    applicationName: codeDeployApp,
-    deploymentGroupName: codeDeployGroup,
-    revision: {
-      revisionType: 'AppSpecContent',
-      appSpecContent: {
-        content: appSpecString,
-        sha256: appSpecHash
-      }
-    }
-  }).promise();
-  core.setOutput('codedeploy-deployment-id', createDeployResponse.deploymentId);
-  core.info(`Deployment started. Watch this deployment's progress in the AWS CodeDeploy console: https://console.aws.amazon.com/codesuite/codedeploy/deployments/${createDeployResponse.deploymentId}?region=${aws.config.region}`);
-
-  // Wait for deployment to complete
-  if (waitForService && waitForService.toLowerCase() === 'true') {
-    // Determine wait time
-    const deployReadyWaitMin = deploymentGroupDetails.blueGreenDeploymentConfiguration.deploymentReadyOption.waitTimeInMinutes;
-    const terminationWaitMin = deploymentGroupDetails.blueGreenDeploymentConfiguration.terminateBlueInstancesOnDeploymentSuccess.terminationWaitTimeInMinutes;
-    let totalWaitMin = deployReadyWaitMin + terminationWaitMin + waitForMinutes;
-    if (totalWaitMin > MAX_WAIT_MINUTES) {
-      totalWaitMin = MAX_WAIT_MINUTES;
-    }
-    const maxAttempts = (totalWaitMin * 60) / WAIT_DEFAULT_DELAY_SEC;
-
-    core.debug(`Waiting for the deployment to complete. Will wait for ${totalWaitMin} minutes`);
-    await codedeploy.waitFor('deploymentSuccessful', {
-      deploymentId: createDeployResponse.deploymentId,
-      $waiter: {
-        delay: WAIT_DEFAULT_DELAY_SEC,
-        maxAttempts: maxAttempts
-      }
-    }).promise();
-  } else {
-    core.debug('Not waiting for the deployment to complete');
-  }
-}
-
 async function run(newTaskDefinition) {
   try {
     const ecs = new aws.ECS({
-      customUserAgent: 'amazon-ecs-deploy-task-definition-for-github-actions'
-    });
-    const codedeploy = new aws.CodeDeploy({
       customUserAgent: 'amazon-ecs-deploy-task-definition-for-github-actions'
     });
 
@@ -284,8 +179,7 @@ async function run(newTaskDefinition) {
 
     // Register the task definition
     core.debug('Registering the task definition');
-    const fileContents = newTaskDefinition;
-    const taskDefContents = maintainValidObjects(removeIgnoredAttributes(cleanNullKeys(yaml.parse(fileContents))));
+    const taskDefContents = maintainValidObjects(removeIgnoredAttributes(cleanNullKeys(yaml.parse(newTaskDefinition))));
     let registerResponse;
     try {
       registerResponse = await ecs.registerTaskDefinition(taskDefContents).promise();
@@ -321,9 +215,6 @@ async function run(newTaskDefinition) {
       if (!serviceResponse.deploymentController) {
         // Service uses the 'ECS' deployment controller, so we can call UpdateService
         await updateEcsService(ecs, clusterName, service, taskDefArn, waitForService, waitForMinutes, forceNewDeployment);
-      } else if (serviceResponse.deploymentController.type == 'CODE_DEPLOY') {
-        // Service uses CodeDeploy, so we should start a CodeDeploy deployment
-        await createCodeDeployDeployment(codedeploy, clusterName, service, taskDefArn, waitForService, waitForMinutes);
       } else {
         throw new Error(`Unsupported deployment controller: ${serviceResponse.deploymentController.type}`);
       }
