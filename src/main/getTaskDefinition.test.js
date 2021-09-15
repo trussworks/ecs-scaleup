@@ -10,13 +10,18 @@ function mockGetInput(requestResponse) {
 }
 
 const FAKE_TASK_DEFINITION = 'fake-task-definition'
+const FAKE_REPO_HASH = 'fake-repo-hash'
 
 const NO_INPUTS = {
   'task-definition': '',
   'repository-hash': ''
 }
-const INPUTS = {
+const TASK_DEF_INPUTS = {
   'task-definition': FAKE_TASK_DEFINITION
+}
+
+const REPO_HASH_INPUTS = {
+  'repository-hash': FAKE_REPO_HASH
 }
 
 const mockEcsDescribeTaskDefinition = jest.fn();
@@ -58,7 +63,7 @@ describe('Get the Task Definition', () => {
   test('calls the describeTaskDefinition function', async () => {
     core.getInput = jest
       .fn()
-      .mockImplementation(mockGetInput(INPUTS))
+      .mockImplementation(mockGetInput(TASK_DEF_INPUTS))
     await run()
     expect(mockEcsDescribeTaskDefinition).toHaveBeenCalled();
   });
@@ -66,9 +71,16 @@ describe('Get the Task Definition', () => {
   test('returns the task definition', async () => {
     core.getInput = jest
       .fn()
-      .mockImplementation(mockGetInput(INPUTS))
+      .mockImplementation(mockGetInput(TASK_DEF_INPUTS))
     const result = await run();
     expect(result).toHaveProperty("family")
     expect(result).toHaveProperty("containerDefinitions")
+  })
+
+  test('works as long as either task-definition or repo-hash are provided', async () => {
+    core.getInput = jest
+      .fn()
+      .mockImplementation(mockGetInput(REPO_HASH_INPUTS))
+      await run()
   })
 })
