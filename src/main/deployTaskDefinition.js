@@ -166,8 +166,8 @@ async function run(newTaskDefinition) {
     });
 
     // Get inputs
-    const service = core.getInput('service', { required: false });
-    const cluster = core.getInput('cluster', { required: false });
+    const service = core.getInput('service') || `gh-runner-${core.getInput('repository-hash')}`;
+    const cluster = core.getInput('cluster') || `gh-runner-${core.getInput('repository-hash')}`;
     const waitForService = 'true' // Forcing this to be required because if it isn't, the runners won't be up in time
     let waitForMinutes = parseInt(core.getInput('wait-for-minutes', { required: false })) || 30;
     if (waitForMinutes > MAX_WAIT_MINUTES) {

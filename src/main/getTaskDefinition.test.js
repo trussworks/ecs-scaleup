@@ -11,7 +11,10 @@ function mockGetInput(requestResponse) {
 
 const FAKE_TASK_DEFINITION = 'fake-task-definition'
 
-const NO_INPUTS = {}
+const NO_INPUTS = {
+  'task-definition': '',
+  'repository-hash': ''
+}
 const INPUTS = {
   'task-definition': FAKE_TASK_DEFINITION
 }

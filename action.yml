@@ -24,18 +24,28 @@ inputs:
     description: 'The unique tag of a specific image to pull from your ECR repository.'
     required: false
     default: 'latest'
+  repository-hash:
+    description: >-
+      If you are using the self-hosted github runner module, the module will generate a hash for naming the container-name,
+      task-definition, service, and cluster. You can populate that unique hash here to specify those and will not need to populate the next 4 variables below.
+    required: false
+    default: ''
   container-name:
     description: 'The container name listed in the task definition you will deploy.'
-    required: true
+    required: false
+    default: ''
   task-definition:
     description: 'The task definition family name.'
-    required: true
+    required: false
+    default: ''
   service:
     description: 'The name of the ECS service.'
-    required: true
+    required: false
+    default: ''
   cluster:
     description: 'The name of the ECS cluster the service belongs to.'
-    required: true
+    required: false
+    default: ''
   desired-count:
     description: 'The number of ECS tasks you wish to deploy.'
     required: true

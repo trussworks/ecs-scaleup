@@ -2,8 +2,8 @@ const core = require('@actions/core');
 const aws = require('aws-sdk');
 
 async function run() {
-  const service = core.getInput('service', { required: true });
-  const cluster = core.getInput('cluster', { required: true });
+  const service = core.getInput('service') || `gh-runner-${core.getInput('repository-hash')}`;
+  const cluster = core.getInput('cluster') || `gh-runner-${core.getInput('repository-hash')}`;
   const desiredCount = core.getInput('desired-count', { required: true });
   try {
     if (!service && !cluster) {
