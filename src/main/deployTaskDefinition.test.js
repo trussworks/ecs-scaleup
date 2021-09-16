@@ -441,28 +441,6 @@ describe('Deploy to ECS', () => {
 //         });
 //     });
 
-    test('defaults to the default cluster', async () => {
-        core.getInput = jest
-            .fn()
-            .mockReturnValueOnce('service-456');         // service
-
-        await run(FAKE_TASK_DEFINITION);
-        expect(core.setFailed).toHaveBeenCalledTimes(0);
-
-        expect(mockEcsRegisterTaskDef).toHaveBeenNthCalledWith(1, { family: 'task-def-family'});
-        expect(core.setOutput).toHaveBeenNthCalledWith(1, 'task-definition-arn', 'task:def:arn');
-        expect(mockEcsDescribeServices).toHaveBeenNthCalledWith(1, {
-            cluster: 'default',
-            services: ['service-456']
-        });
-        expect(mockEcsUpdateService).toHaveBeenNthCalledWith(1, {
-            cluster: 'default',
-            service: 'service-456',
-            taskDefinition: 'task:def:arn',
-            forceNewDeployment: false
-        });
-    });
-
     test('does not update service if none specified', async () => {
         core.getInput = jest
             .fn()

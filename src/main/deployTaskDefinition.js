@@ -193,7 +193,7 @@ async function run(newTaskDefinition) {
     core.setOutput('task-definition-arn', taskDefArn);
 
     // Update the service with the new task definition
-    if (service) {
+    if (service && service !== 'gh-runner-' && service !== 'gh-runner-undefined') {
       const clusterName = cluster ? cluster : 'default';
 
       // Determine the deployment controller
