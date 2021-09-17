@@ -2,9 +2,9 @@ const core = require('@actions/core');
 const aws = require('aws-sdk');
 
 async function run() {
-  const taskDefinition = core.getInput('task-definition', { required: true });
   try {
-    if (!taskDefinition) {
+    const taskDefinition = core.getInput('task-definition') || `gh-runner-${core.getInput('repository-hash')}`
+    if (taskDefinition === 'gh-runner-') {
       core.setFailed('You must supply a task definition family')
     }
     // Connect to ecs and pull the task definition

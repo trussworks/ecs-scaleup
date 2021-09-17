@@ -5,6 +5,7 @@ jest.mock('@actions/core');
 
 const FAKE_SERVICE = 'fake-service'
 const FAKE_CLUSTER = 'fake-cluster'
+const FAKE_REPO_HASH = 'fake-hash'
 const FAKE_DESIRED_COUNT = 1
 
 function mockGetInput(requestResponse) {
@@ -13,15 +14,26 @@ function mockGetInput(requestResponse) {
   }
 }
 
-const NO_INPUTS = {}
+const NO_INPUTS = {
+  "repository-hash": '',
+  "desired-count": FAKE_DESIRED_COUNT
+}
 const SERVICE_ONLY = {
   service: FAKE_SERVICE,
+  "repository-hash": '',
   "desired-count": FAKE_DESIRED_COUNT
 }
 const CLUSTER_ONLY = {
   cluster: FAKE_CLUSTER,
+  "repository-hash": '',
   "desired-count": FAKE_DESIRED_COUNT
 }
+
+const REPO_HASH_ONLY = {
+  "repository-hash": FAKE_REPO_HASH,
+  "desired-count": FAKE_DESIRED_COUNT
+}
+
 const ALL_INPUTS = {
   service: FAKE_SERVICE,
   cluster: FAKE_CLUSTER,
@@ -87,5 +99,14 @@ describe('Increment Service Count', () => {
     await run();
     expect(mockUpdateService).toHaveBeenCalledTimes(1)
     expect(mockUpdateService).toHaveBeenNthCalledWith(1, {'service': FAKE_SERVICE, 'cluster': FAKE_CLUSTER, 'desiredCount': FAKE_DESIRED_COUNT})
+  })
+
+  test('when a valid repo hash is provided, function runs successfully', async () => {
+    core.getInput = jest
+      .fn()
+      .mockImplementation(mockGetInput(REPO_HASH_ONLY))
+    await run();
+    expect(mockUpdateService).toHaveBeenCalledTimes(1)
+    expect(mockUpdateService).toHaveBeenNthCalledWith(1, {'service': `gh-runner-${FAKE_REPO_HASH}`, 'cluster': `gh-runner-${FAKE_REPO_HASH}`, 'desiredCount': FAKE_DESIRED_COUNT})
   })
 });

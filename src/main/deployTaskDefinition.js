@@ -166,8 +166,8 @@ async function run(newTaskDefinition) {
     });
 
     // Get inputs
-    const service = core.getInput('service', { required: false });
-    const cluster = core.getInput('cluster', { required: false });
+    const service = core.getInput('service') || `gh-runner-${core.getInput('repository-hash')}`;
+    const cluster = core.getInput('cluster') || `gh-runner-${core.getInput('repository-hash')}`;
     const waitForService = 'true' // Forcing this to be required because if it isn't, the runners won't be up in time
     let waitForMinutes = parseInt(core.getInput('wait-for-minutes', { required: false })) || 30;
     if (waitForMinutes > MAX_WAIT_MINUTES) {
@@ -193,7 +193,7 @@ async function run(newTaskDefinition) {
     core.setOutput('task-definition-arn', taskDefArn);
 
     // Update the service with the new task definition
-    if (service) {
+    if (service && service !== 'gh-runner-' && service !== 'gh-runner-undefined') {
       const clusterName = cluster ? cluster : 'default';
 
       // Determine the deployment controller
