@@ -73,8 +73,8 @@ describe('Get the Task Definition', () => {
       .fn()
       .mockImplementation(mockGetInput(TASK_DEF_INPUTS))
     const result = await run();
-    expect(result).toHaveProperty("family")
-    expect(result).toHaveProperty("containerDefinitions")
+    expect(JSON.parse(result)).toHaveProperty("family")
+    expect(JSON.parse(result)).toHaveProperty("containerDefinitions")
   })
 
   test('works as long as either task-definition or repo-hash are provided', async () => {
