@@ -13,7 +13,7 @@ async function run() {
     });
     const taskDefResponse = await ecs.describeTaskDefinition({ taskDefinition }).promise();
 
-    return taskDefResponse.taskDefinition
+    return JSON.stringify(taskDefResponse.taskDefinition, null, 2)
 
   } catch (error) {
     core.setFailed(error.message);
