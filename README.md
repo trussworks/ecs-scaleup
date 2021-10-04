@@ -14,13 +14,10 @@ Since GitHub Actions currently does not allow
 
 1. Configure AWS credentials. Uses existing action:
  [aws-actions/configure-aws-credentials](https://github.com/aws-actions/configure-aws-credentials)
-2. Generate a complete image URI for the ECR-hosted image to use. Uses logic from this action, but cuts down a lot of the workflow:
- [aws-actions/amazon-ecr-login](https://github.com/aws-actions/amazon-ecr-login)
-3. Use the AWS SDK for JavaScript to grab the desired task definition from AWS
-4. Populate the task definition with the desired image. Starting with logic from the existing action: [aws-actions/amazon-ecs-render-task-definition](https://github.com/aws-actions/amazon-ecs-render-task-definition), this is now just a simple JavaScript function to plug the new image URI into the task definition fetched from step 3
-5. Uses the AWS SDK for JavaScript to increment the specified ECS Service's
+2. Use the AWS SDK for JavaScript to grab the desired task definition from AWS
+3. Uses the AWS SDK for JavaScript to increment the specified ECS Service's
 `desired count` attribute to the desired number
-6. Deploy the task definition from step 4. Started from existing action: [aws-actions/amazon-ecs-deploy-task-definition](https://github.com/aws-actions/amazon-ecs-deploy-task-definition). Removed usage of CodeDeploy and refactored to use task definition from step 4 instead of a file path.
+4. Deploy the task definition from step 2. Started from existing action: [aws-actions/amazon-ecs-deploy-task-definition](https://github.com/aws-actions/amazon-ecs-deploy-task-definition). Removed usage of CodeDeploy and refactored to use task definition from step 2 instead of a file path.
 
 ## Modifications made to existing AWS actions
 
@@ -42,22 +39,6 @@ have been removed from files other than `index.js`.
 Path: `src/main/configAwsCreds.js`
 
 No other changes
-
-### aws-actions/amazon-ecr-login
-
-Path: `src/main/amazonEcrLogin.js`
-
-Since no docker commands are being executed in the container, most of the logic of this action was trimmed from the final ecs-scaleup.
-
-We have kept the authorization token request which depends on config aws creds successfully setting up the login, then retrieve the correct registryURI.
-
- This image is accepted as an argument to a subsequent step.
-
-### aws-actions/amazon-ecs-render-task-definition
-
-Path: `src/main/renderTaskDefinition.js`
-
-This function is now a simple JavaScript function to just take the task definition obtained from `getTaskDefinition.js` and plug in the new imageURI.
 
 ### aws-actions/amazon-ecs-deploy-task-definition
 
@@ -87,8 +68,6 @@ ecs-scaleup:
         aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
         aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
         aws-region: us-east-1
-        ecr-repository: github-runner
-        image-tag: latest
         container-name: gh-runner-aa50c18a-3141-506e-a0da-b96b2e12048e
         task-definition: gh-runner-aa50c18a-3141-506e-a0da-b96b2e12048e
         service: gh-runner-aa50c18a-3141-506e-a0da-b96b2e12048e
@@ -111,8 +90,6 @@ ecs-scaleup:
         aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
         aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
         aws-region: us-east-1
-        ecr-repository: github-runner
-        image-tag: latest
         repository-hash: aa50c18a-3141-506e-a0da-b96b2e12048e
         desired-count: 3
 ```
