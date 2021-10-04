@@ -17,13 +17,6 @@ inputs:
     description: 'Your AWS region'
     required: true
     default: 'us-east-1'
-  ecr-repository:
-    description: 'The ECR repository housing the image you want to use.'
-    required: true
-  image-tag:
-    description: 'The unique tag of a specific image to pull from your ECR repository.'
-    required: false
-    default: 'latest'
   repository-hash:
     description: >-
       If you are using the self-hosted github runner module, the module will generate a hash for naming the container-name,
